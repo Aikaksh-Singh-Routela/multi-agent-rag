@@ -18,6 +18,7 @@ if hasattr(st, "secrets"):
             os.environ["LANGCHAIN_PROJECT"] = st.secrets["LANGCHAIN_PROJECT"]
     except Exception:
         pass # Fallback to local .env if secrets aren't set up
+from langchain_groq import ChatGroq
 from langchain_community.vectorstores import Chroma
 from langchain_community.embeddings import HuggingFaceEmbeddings
 from langchain_community.document_loaders import PyPDFLoader
