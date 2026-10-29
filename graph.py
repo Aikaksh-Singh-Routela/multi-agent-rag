@@ -23,6 +23,7 @@ from langchain_community.vectorstores import Chroma
 from langchain_community.embeddings import HuggingFaceEmbeddings
 from langchain_community.document_loaders import PyPDFLoader
 from langchain_text_splitters import RecursiveCharacterTextSplitter
+from typing import TypedDict, Literal
 
 # 1. Setup API
 llm = ChatGroq(model="openai/gpt-oss-120b", temperature=0)
