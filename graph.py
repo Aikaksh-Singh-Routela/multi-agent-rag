@@ -1,13 +1,23 @@
 import os
-from typing import TypedDict, Literal
+import streamlit as st
 from dotenv import load_dotenv
 
-# Load environment variables securely
+# Load local .env for development
 load_dotenv()
 
-from langgraph.graph import StateGraph, END
-from langchain_groq import ChatGroq
-from langchain_core.messages import HumanMessage, SystemMessage
+# If running on Streamlit Cloud, load keys from Streamlit Secrets
+if hasattr(st, "secrets"):
+    try:
+        if "GROQ_API_KEY" in st.secrets:
+            os.environ["GROQ_API_KEY"] = st.secrets["GROQ_API_KEY"]
+        if "LANGCHAIN_API_KEY" in st.secrets:
+            os.environ["LANGCHAIN_API_KEY"] = st.secrets["LANGCHAIN_API_KEY"]
+        if "LANGCHAIN_TRACING_V2" in st.secrets:
+            os.environ["LANGCHAIN_TRACING_V2"] = st.secrets["LANGCHAIN_TRACING_V2"]
+        if "LANGCHAIN_PROJECT" in st.secrets:
+            os.environ["LANGCHAIN_PROJECT"] = st.secrets["LANGCHAIN_PROJECT"]
+    except Exception:
+        pass # Fallback to local .env if secrets aren't set up
 from langchain_community.vectorstores import Chroma
 from langchain_community.embeddings import HuggingFaceEmbeddings
 from langchain_community.document_loaders import PyPDFLoader
@@ -16,8 +26,18 @@ from langchain_text_splitters import RecursiveCharacterTextSplitter
 # 1. Setup API
 llm = ChatGroq(model="openai/gpt-oss-120b", temperature=0)
 
+import urllib.request
+
 # 2. Setup Vector Database (Load PDF)
-loader = PyPDFLoader("project pdf.pdf") # Change to your technical PDF later
+pdf_path = "project pdf.pdf"
+pdf_url = "https://arxiv.org/pdf/2401.00001" # A public research paper as fallback
+
+# Check if the PDF exists locally. If not, download it.
+if not os.path.exists(pdf_path):
+    print("Downloading PDF for cloud deployment...")
+    urllib.request.urlretrieve(pdf_url, pdf_path)
+
+loader = PyPDFLoader(pdf_path)
 pages = loader.load()
 text_splitter = RecursiveCharacterTextSplitter(chunk_size=500, chunk_overlap=50)
 docs = text_splitter.split_documents(pages)
