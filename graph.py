@@ -23,6 +23,8 @@ from langchain_community.vectorstores import Chroma
 from langchain_community.embeddings import HuggingFaceEmbeddings
 from langchain_community.document_loaders import PyPDFLoader
 from langchain_text_splitters import RecursiveCharacterTextSplitter
+from langchain_core.messages import HumanMessage, SystemMessage  # ADDED
+from langgraph.graph import StateGraph, END                      # ADDED
 from typing import TypedDict, Literal
 
 # 1. Setup API
