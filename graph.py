@@ -85,11 +85,24 @@ def orchestrator_node(state: AgentState):
     print(f"Routing to: {route.upper()}")
     return {"route": route}
 
+import time
+
 def web_search_node(state: AgentState):
     print("--- RESEARCH AGENT: SEARCHING THE WEB ---")
-    results = tavily.search(query=state["question"], search_depth="basic")
-    context = "\n\n".join([f"Source: {r['url']}\nContent: {r['content']}" for r in results['results']])
-    return {"context": context}
+    
+    max_retries = 3
+    for attempt in range(max_retries):
+        try:
+            results = tavily.search(query=state["question"], search_depth="basic")
+            context = "\n\n".join([f"Source: {r['url']}\nContent: {r['content']}" for r in results['results']])
+            return {"context": context}
+        except Exception as e:
+            print(f"Tavily search failed (attempt {attempt + 1}/{max_retries}): {e}")
+            if attempt < max_retries - 1:
+                time.sleep(2 ** attempt)  # Wait 1s, then 2s before retrying
+            else:
+                # If all retries fail, return an error message as context
+                return {"context": "Web search is temporarily unavailable. Please try again."}
 
 def rag_node(state: AgentState):
     print("--- KNOWLEDGE AGENT: SEARCHING PDF ---")
