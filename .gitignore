@@ -1,6 +1,6 @@
 .env
+.streamlit/secrets.toml
 .venv/
 __pycache__/
 .vscode/
 *.pdf
-.streamlit/secrets.toml
